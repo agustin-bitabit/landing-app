@@ -21,8 +21,11 @@ import type { Testimonial, TestimonialApiRecord } from '../types/testimonial'
 
 /** Fotos en `src/assets/landing/` — Unsplash (uso permitido con atribución). */
 
-/** Base del backend (sin slash final). Cambiar aquí cuando despliegues. */
-const API_BASE_URL = 'https://puivcr3wud.execute-api.us-east-1.amazonaws.com/dev/api/'
+/** Base del backend (sin slash final). Variable `VITE_API_BASE_URL` en `.env`. */
+const API_BASE_URL =
+  typeof import.meta.env.VITE_API_BASE_URL === 'string'
+    ? import.meta.env.VITE_API_BASE_URL.trim().replace(/\/$/, '')
+    : ''
 
 /** Contenido estático de la landing (luego se puede reemplazar por API o CMS). */
 export const siteBrand = 'Patitas & Copos'
@@ -179,8 +182,9 @@ function parseTestimonialsPayload(json: unknown): TestimonialApiRecord[] {
 }
 
 export async function fetchTestimonials(): Promise<Testimonial[]> {
+  if (!API_BASE_URL) return []
   try {
-    const url = `${API_BASE_URL.replace(/\/$/, '')}/testimonials`
+    const url = `${API_BASE_URL}/testimonials`
     const res = await fetch(url)
     if (!res.ok) return []
     const json: unknown = await res.json()
